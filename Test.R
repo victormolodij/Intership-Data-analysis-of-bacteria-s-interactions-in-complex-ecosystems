@@ -55,20 +55,3 @@ get_CARI = function(r,t,z,w){
   }
   return(CARI(apply(z,1,which.max),apply(w,1,which.max),apply(Tmem1_0,1,which.max),apply(Tmem2_0,1,which.max)))
 }
-
-
-
-# SBM
-
-misc(r,z)
-ARI(r,z)
-
-# LBM
-
-misc(t,w)
-ARI(t,w)
-
-# test
-
-misc(Z,z)
-ARI(Z,z)

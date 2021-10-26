@@ -1,5 +1,8 @@
 SBM_EMV = function(x,r,rho,mu,sigma2_1){
-
+  
+  P = dim(r)[2]
+  N = dim(r)[1]
+  
   eps = 10^(-3)
   max_iteration = 100
   Free_E0 = -Inf
@@ -24,8 +27,10 @@ SBM_EMV = function(x,r,rho,mu,sigma2_1){
         log_psi[i,k] = lpsi(i,k)
       }
     }
-    log_psi_max = max(log_psi)
-    log_psi0 = log_psi - log_psi_max
+    log_psi0 = matrix(0,N,P)
+    for(i in 1:N){
+      log_psi0[i,] = log_psi[i,] - max(log_psi[i,])
+    }
     r0 = matrix(0,N,P)
     for(i in 1:N){
       r_den = 0
@@ -89,5 +94,5 @@ SBM_EMV = function(x,r,rho,mu,sigma2_1){
       print(Free_E)
   }
 
-  return(list("r"=r,"rho"=rho,"mu"=mu,"sig1"=sigma2_1))
+  return(list("r"=r,"rho"=rho,"mu"=mu,"sig1"=sigma2_1,"Fe"=Free_E))
 }
