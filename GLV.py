@@ -3,22 +3,26 @@ import scipy.integrate
 import matplotlib.pyplot as plt
 import csv
 
+# number of bacteria
 N = 6
+# number of group
 J = 3
+# number of time step
 K = 200
+# time max
 T = 20
 
-mu = [7.5,2.6,2.5]*2
+
+B = [7.5,2.6,2.5]*2
 A = [[-2,-5,-0.5]*2,[-0.5,-1,-1.2]*2,[-1,-0.5,-1]*2]*2
 
+
 X = np.linspace(0,T,K)
-
-
 Y0 = [[1,1,1,0.5,0.5,0.5],[1,1,1,0.5,0.5,0.5],[1,1,1,0.5,0.5,0.5]]
 Y = [[]]*J
 
 def f(y,t):
-  return((y * (mu + np.dot(A,y))))
+  return((y * (B + np.dot(A,y))))
 
 for i in range(J):
     Y[i] = scipy.integrate.odeint(f,Y0[i],X)

@@ -1,4 +1,4 @@
-LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
+SLBM_EMV = function(x,y,r,t,rho,tau,mu,nu,sigma2_1,sigma2_2){
   
   P = dim(r)[2]
   N = dim(r)[1]
@@ -13,11 +13,19 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
     # r,t estimation
     lpsi = function(i,k){
       log_psi_out = 0
+      for(j in 1:N){
+        for(l in 1:P){
+          if(i != j){
+            log_psi_out = log_psi_out + r[j,l]*(-((x[i,j] - mu[k,l])^2)/(2*sigma2_1) - 0.5*log(2*pi*sigma2_1))
+          }
+        }
+      }
       for(g in 1:M){
         for(h in 1:Q){
             log_psi_out = log_psi_out + t[g,h]*(-((y[i,g] - nu[k,h])^2)/(2*sigma2_2) - 0.5*log(2*pi*sigma2_2))
         }
       }
+      #return(exp(log_psi_out))
       return(log_psi_out)
     }
     
@@ -28,6 +36,7 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
           log_phi_out = log_phi_out + r[i,k]*(-((y[i,g] - nu[k,h])^2)/(2*sigma2_2) - 0.5*log(2*pi*sigma2_2))
         }
       }
+      #return(exp(log_phi_out))
       return(log_phi_out)
     }
     
@@ -68,7 +77,7 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
       for(h in 1:Q){
         t0[g,h] = tau[h]*exp(log_phi0[g,h])
         t_den = t_den + tau[h]*exp(log_phi0[g,h])
-      }
+        }
       t0[g,] = t0[g,]/t_den
     }
     t = t0
@@ -78,7 +87,35 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
     tau = as.matrix(apply(t,2,mean))
     
     
-    # nu,sigma2 estimation
+    # mu,nu,sigma2 estimation
+    mu_num = matrix(0,P,P)
+    mu_den = matrix(0,P,P)
+    for(k in 1:P){
+      for(l in 1:P){
+        for(i in 1:N){
+          for(j in min((i+1),N):N){
+            mu_num[k,l] = mu_num[k,l] + r[i,k]*r[j,l]*x[i,j]
+            mu_den[k,l] = mu_den[k,l] + r[i,k]*r[j,l]
+          }
+        }
+      }
+    }
+    mu = mu_num/mu_den
+    
+    sigma2_1_num = 0
+    sigma2_1_den = 0
+    for(k in 1:P){
+      for(l in 1:P){
+        for(i in 1:N){
+          for(j in min((i+1),N):N){
+              sigma2_1_num = sigma2_1_num + r[i,k]*r[j,l]*(x[i,j]-mu[k,l])^2
+              sigma2_1_den = sigma2_1_den + r[i,k]*r[j,l]
+          }
+        }
+      }
+    }
+    sigma2_1 = sigma2_1_num/sigma2_1_den
+    
     nu_num = matrix(0,P,Q)
     nu_den = matrix(0,P,Q)
     for(k in 1:P){
@@ -112,6 +149,11 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
     Free_E = 0
     for(i in 1:N){
       for(k in 1:P){
+        for(j in min((i+1),N):N){
+          for(l in 1:P){
+            Free_E = Free_E + r[i,k]*r[j,l]*(-((x[i,j] - mu[k,l])^2)/(2*sigma2_1) - log(sqrt(2*pi*sigma2_1)))
+          }
+        }
         Free_E = Free_E + log(rho[k]^r[i,k]) - log(r[i,k]^r[i,k])
       }
     }
@@ -130,8 +172,8 @@ LBM_EMV = function(y,r,t,rho,tau,nu,sigma2_2){
       break
     }
       Free_E0 = Free_E
-      print(Free_E)
+      #print(Free_E)
   }
   
-  return(list("r"=r,"t"=t,"rho"=rho,"tau"=tau,"nu"=nu,"sig2"=sigma2_2,"Fe"=Free_E))
+  return(list("r"=r,"t"=t,"rho"=rho,"tau"=tau,"mu"=mu,"nu"=nu,"sig1"=sigma2_1,"sig2"=sigma2_2,"Fe"=Free_E))
 }

@@ -1,3 +1,6 @@
+# generate synthetic data with SLBM model
+
+
 SLBM_gen = function(M,N,P,Q){
   epsilon1 = 0.4
   mu = (1-epsilon1)*matrix(1,P,P)
@@ -55,7 +58,7 @@ SLBM_gen2 = function(M,N,P,Q,epsilon,sigma2){
   mu[lower.tri(mu)] = t(mu)[lower.tri(mu)]
   diag(mu) = 1-epsilon1
   epsilon2 = epsilon
-  nu = t(epsilon2*matrix(seq(1,P),P,Q))
+  nu = t(epsilon2*matrix(seq(1,P),Q,P))
   diag(nu) = 1-epsilon2
   sigma2_1 = sigma2
   sigma2_2 = sigma2
@@ -71,37 +74,38 @@ SLBM_gen2 = function(M,N,P,Q,epsilon,sigma2){
   return(list("x"=x,"y"=y,"z"=z,"w"=w,"rho"=rho,"tau"=tau,"mu"=mu,"nu"=nu,"sig1"=sigma2_1,"sig2"=sigma2_2))
 }
 
-S = SLBM_gen2(M,N,P,Q,0.1,0.2)
+
+
 
 
 # test
 
-N = 200
-M = 200
-P = 4
-Q = 4
-SLBM = SLBM_gen(M,N,P,Q)
-x = SLBM$x
-y = SLBM$y
-z = SLBM$z
-w = SLBM$w
-rho = SLBM$rho
-tau = SLBM$tau
-mu = SLBM$mu
-nu = SLBM$nu
-sigma2_1 = SLBM$sig1
-sigma2_2 = SLBM$sig2
-
-k = 2
-l = 2
-Gk = (z[,k]*(1:N))[z[,k] != 0]
-Gl = (z[,l]*(1:N))[z[,l] != 0]
-mean((x[Gk,Gl])[lower.tri(x[Gk,Gl])])
-mu[k,l]
-
-k = 2
-h = 2
-Gg = (z[,g]*(1:N))[z[,g] != 0]
-Gh = (w[,h]*(1:M))[w[,h] != 0]
-mean(y[Gg,Gh])
-nu[g,h]
+# N = 200
+# M = 200
+# P = 4
+# Q = 4
+# SLBM = SLBM_gen(M,N,P,Q)
+# x = SLBM$x
+# y = SLBM$y
+# z = SLBM$z
+# w = SLBM$w
+# rho = SLBM$rho
+# tau = SLBM$tau
+# mu = SLBM$mu
+# nu = SLBM$nu
+# sigma2_1 = SLBM$sig1
+# sigma2_2 = SLBM$sig2
+# 
+# k = 2
+# l = 2
+# Gk = (z[,k]*(1:N))[z[,k] != 0]
+# Gl = (z[,l]*(1:N))[z[,l] != 0]
+# mean((x[Gk,Gl])[lower.tri(x[Gk,Gl])])
+# mu[k,l]
+# 
+# k = 2
+# h = 2
+# Gg = (z[,k]*(1:N))[z[,k] != 0]
+# Gh = (w[,h]*(1:M))[w[,h] != 0]
+# mean(y[Gg,Gh])
+# nu[k,h]

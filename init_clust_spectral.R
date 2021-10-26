@@ -1,16 +1,19 @@
-# # initialisation of parameters using the true labels
+# initialisation of parameters using cpectral clustering
 
-easy_init = function(x,y,z,w){
+init_cs = function(x,y,P,Q){
+
+  N = dim(x)[1]
+  M = dim(y)[2]
   
-  r = z
-  t = w
+  CS_x = spectral.clustering(x, normalised = TRUE, K = P)
+  CS_y = spectral.clustering(y, normalised = TRUE, K = Q)
+  mem_x = CS_x[1:N]
+  mem_y = CS_y[1:N]
+  
+  r = t(matrix(as.numeric(rep(mem_x,each=P) == 1:P),P,N))
+  t = t(matrix(as.numeric(rep(mem_y,each=Q) == 1:Q),Q,M))
   rho = as.matrix(apply(r,2,mean))
   tau = as.matrix(apply(t,2,mean))
-  
-  P = dim(r)[2]
-  N = dim(r)[1]
-  Q = dim(t)[2]
-  M = dim(t)[1]
   
   # mu,nu,sigma2 estimation
   mu_num = matrix(0,P,P)
@@ -68,6 +71,6 @@ easy_init = function(x,y,z,w){
     }
   }
   sigma2_2 = sigma2_2_num/sigma2_2_den
-  
+
   return(list("r"=r,"t"=t,"rho"=rho,"tau"=tau,"mu"=mu,"nu"=nu,"sig1"=sigma2_1,"sig2"=sigma2_2))
 }

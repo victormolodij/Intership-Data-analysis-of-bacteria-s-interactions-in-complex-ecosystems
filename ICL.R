@@ -1,52 +1,28 @@
-ICL = function(N,M,P,Q){
-  return(0)
-}
+# Calcul of ICL asymptotique
 
-a = 1
-b = 2
-a=b=a
-
-
-
-selec_model(z,w){
+ICL_asp = function(x,y,r,t,rho,tau,mu,nu,sigma2_1,simga2_2){
   
-  ICL0 = -Inf
+  P = dim(r)[2]
+  N = dim(r)[1]
+  Q = dim(t)[2]
+  M = dim(t)[1]
   
-  while(ICL_z_plus > ICL0 || ICL_w_plus > ICL0){
-    
-    z_index = sample(1:P, 1)
-    z_plus = cbind(z,matrix(0,N,1))
+  ICL_value = 0
+  z = apply(r,1,which.max)
+  w = apply(t,1,which.max)
+  for(i in 1:N){
+    for(j in 1:N){
+      ICL_value = ICL_value + (-((x[i,j] - mu[z[i],z[j]])^2)/(2*sigma2_1) - log(sqrt(2*pi*sigma2_1)))
+    }
+    ICL_value = ICL_value + rho[z[i]]
+  }
+  for(g in 1:M){
     for(i in 1:N){
-      rd = sample(0:1,1)
-      if(rd){
-        z_plus[i,P+1] = z_plus[i,z_index]
-        z_plus[i,z_index] = 0
-      }
-    }
-    
-    w_index = sample(1:Q, 1)
-    w_plus = cbind(t,matrix(0,M,1))
-    for(g in 1:M){
-      rd = sample(0:1,1)
-      if(rd){
-        w_plus[g,Q+1] = w_plus[g,w_index]
-        w_plus[g,w_index] = 0
-      }
-    }
-
-
-    # ICL
-    ICL_r_plus = ICL()
-    ICL_t_plus = ICL()
-    if(ICL_r_plus >= ICL_t_plus){
-      P = P+1
-      ICL0 = ICL_r_plus
-    }
-    else{
-      Q = Q+1
-      ICL0 = ICL_t_plus
+      ICL_value = ICL_value + (-((y[i,g] - nu[z[i],w[g]])^2)/(2*sigma2_2) - log(sqrt(2*pi*sigma2_2)))
     }
   }
+  ICL_value = ICL_value + tau[w[g]]
+  
+  ICL_value = ICL_value - (P*(P+1)/4)*log(N*(N-1)/2) - (P*Q/2)*log(N*M) - (P/2)*log(N) - (Q/2)*log(M)
+  return(ICL_value)
 }
-
-
